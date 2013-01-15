@@ -2,4 +2,7 @@
 package stackexchange
 
 // Root is the Stack Exchange API endpoint.
-const Root = "https://api.stackexchange.com/2.1"
+const Root = "https://api.stackexchange.com/" + Version
+
+// Version is the API version identifier.
+const Version = "2.1"
