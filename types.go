@@ -2,6 +2,7 @@ package stackexchange
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 )
 
@@ -32,6 +33,41 @@ type Answer struct {
 	QuestionID int    `json:"question_id"`
 	Score      int    `json:"score"`
 	Title      string `json:"title"`
+}
+
+// Error is an error returned from the Stack Exchange API wrapper.
+//
+// See: https://api.stackexchange.com/docs/wrapper
+type Error struct {
+	ID      int    `json:"error_id"`
+	Name    string `json:"error_name"`
+	Message string `json:"error_message"`
+}
+
+func (err *Error) Error() string {
+	return err.Message + " (" + strconv.Itoa(err.ID) + " " + err.Name + ")"
+}
+
+// Wrapper records the common fields in the JSON wrapper.  It is intended to be
+// embedded, since the "items" key is specifically not included.
+//
+// See: https://api.stackexchange.com/docs/wrapper
+//
+// BUG(light): encoding/json does not support embedded structs in Go 1.0, so
+// embedding doesn't work as expected yet.
+type Wrapper struct {
+	Error
+
+	Page     int  `json:"page"`
+	PageSize int  `json:"page_size"`
+	HasMore  bool `json:"has_more"`
+
+	Backoff        int `json:"backoff"`
+	QuotaMax       int `json:"quota_max"`
+	QuotaRemaining int `json:"quota_remaining"`
+
+	Total int    `json:"total"`
+	Type  string `json:"type"`
 }
 
 // Time converts Stack Exchange API time values to/from JSON into Go time values.
