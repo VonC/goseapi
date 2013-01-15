@@ -17,6 +17,7 @@ type Question struct {
 	Created          Time   `json:"creation_date"`
 	IsAnswered       bool   `json:"is_answered"`
 	Link             string `json:"link"`
+	Title            string `json:"title"`
 }
 
 // Answer represents an answer to a question on one of the Stack Exchange sites.
@@ -30,6 +31,7 @@ type Answer struct {
 	Link       string `json:"link"`
 	QuestionID int    `json:"question_id"`
 	Score      int    `json:"score"`
+	Title      string `json:"title"`
 }
 
 // Time converts Stack Exchange API time values to/from JSON into Go time values.
