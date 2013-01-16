@@ -2,10 +2,8 @@ package main
 
 import (
 	"bitbucket.org/zombiezen/stackexchange"
-	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 )
 
 func main() {
@@ -15,19 +13,18 @@ func main() {
 }
 
 func scrapeQuestions() error {
-	resp, err := http.Get(stackexchange.Root + "/questions?order=desc&sort=votes&site=stackoverflow&pagesize=5")
+	var questions []stackexchange.Question
+	_, err := stackexchange.Do("/questions", &questions, stackexchange.Params{
+		Site:     stackexchange.StackOverflow,
+		Sort:     stackexchange.SortScore,
+		Order:    "desc",
+		PageSize: 5,
+	})
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
 
-	var result struct{
-		Questions []stackexchange.Question `json:"items"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return err
-	}
-	for _, question := range result.Questions {
+	for _, question := range questions {
 		fmt.Printf("%s (ID=%d)\n", question.Title, question.ID)
 		answers, err := fetchAnswers(question.ID)
 		if err != nil {
@@ -41,15 +38,13 @@ func scrapeQuestions() error {
 }
 
 func fetchAnswers(id int) ([]stackexchange.Answer, error) {
-	resp, err := http.Get(fmt.Sprintf("%s/questions/%d/answers?order=desc&sort=votes&site=stackoverflow&filter=!-u2CTCBE&pagesize=1", stackexchange.Root, id))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var result struct{
-		Answers []stackexchange.Answer `json:"items"`
-	}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	return result.Answers, err
+	var answers []stackexchange.Answer
+	_, err := stackexchange.Do(fmt.Sprintf("/questions/%d/answers", id), &answers, stackexchange.Params{
+		Site:     stackexchange.StackOverflow,
+		Sort:     stackexchange.SortScore,
+		Order:    "desc",
+		Filter:   "!-u2CTCBE",
+		PageSize: 1,
+	})
+	return answers, err
 }
