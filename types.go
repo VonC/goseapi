@@ -18,6 +18,7 @@ type Question struct {
 	Created          Time   `json:"creation_date"`
 	IsAnswered       bool   `json:"is_answered"`
 	Link             string `json:"link"`
+	Score            int    `json:"score"`
 	Title            string `json:"title"`
 }
 
