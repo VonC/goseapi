@@ -4,6 +4,7 @@
 package stackexchange
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -42,6 +43,10 @@ type Params struct {
 	PageSize int
 
 	Filter string
+
+	// If len(Args) != 0, then the strings will substitute placeholders
+	// surrounded by braces in the path.
+	Args []string
 }
 
 func (p *Params) values() url.Values {
@@ -106,7 +111,7 @@ func (c *Client) Do(path string, v interface{}, params *Params) (*Wrapper, error
 	}
 
 	// Send request
-	resp, err := client.Get(root + path + "?" + vals.Encode())
+	resp, err := client.Get(root + fillPlaceholders(path, params.Args) + "?" + vals.Encode())
 	if err != nil {
 		return nil, err
 	}
@@ -114,6 +119,46 @@ func (c *Client) Do(path string, v interface{}, params *Params) (*Wrapper, error
 
 	// Parse response
 	return parseResponse(resp.Body, v)
+}
+
+func fillPlaceholders(s string, args []string) string {
+	if len(s) == 0 || len(args) == 0 {
+		return s
+	}
+
+	b := []byte(s)
+	buf := make([]byte, 0, len(b)*2)
+	argIdx := 0
+	for argIdx < len(args) && len(b) > 0 {
+		if i := bytes.IndexByte(b, '{'); i == -1 {
+			break
+		} else {
+			buf, b = append(buf, b[:i]...), b[i:]
+			if i := bytes.IndexByte(b, '}'); i == -1 {
+				break
+			} else {
+				buf, b = append(buf, args[argIdx]...), b[i+1:]
+				argIdx++
+			}
+		}
+	}
+	if len(b) > 0 {
+		buf = append(buf, b...)
+	}
+	return string(buf)
+}
+
+// JoinIDs builds a string of semicolon-separated IDs.
+func JoinIDs(ids []int) string {
+	const bytesPerID = 9
+	buf := make([]byte, 0, bytesPerID*len(ids))
+	for _, id := range ids {
+		if len(buf) > 0 {
+			buf = append(buf, ';')
+		}
+		buf = strconv.AppendInt(buf, int64(id), 10)
+	}
+	return string(buf)
 }
 
 func parseResponse(r io.Reader, v interface{}) (*Wrapper, error) {
