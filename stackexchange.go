@@ -56,6 +56,8 @@ type Params struct {
 
 	Filter string
 
+	Tagged string
+
 	// If len(Args) != 0, then the strings will substitute placeholders
 	// surrounded by braces in the path.
 	Args []string
@@ -79,6 +81,9 @@ func (p *Params) values() url.Values {
 	}
 	if p.Filter != "" {
 		vals.Set("filter", p.Filter)
+	}
+	if p.Tagged != "" {
+		vals.Set("tagged", p.Tagged)
 	}
 	return vals
 }
