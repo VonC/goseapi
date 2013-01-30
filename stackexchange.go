@@ -42,11 +42,33 @@ type Params struct {
 	Filter string
 }
 
+func (p *Params) values() url.Values {
+	vals := url.Values{
+		"site": {p.Site},
+	}
+	if p.Sort != "" {
+		vals.Set("sort", p.Sort)
+	}
+	if p.Order != "" {
+		vals.Set("order", p.Order)
+	}
+	if p.Page != 0 {
+		vals.Set("page", strconv.Itoa(p.Page))
+	}
+	if p.PageSize != 0 {
+		vals.Set("pagesize", strconv.Itoa(p.PageSize))
+	}
+	if p.Filter != "" {
+		vals.Set("filter", p.Filter)
+	}
+	return vals
+}
+
 // DefaultClient uses the default HTTP client and API root.
 var DefaultClient *Client = nil
 
 // Do performs an API request using the default client.
-func Do(path string, v interface{}, params Params) (*Wrapper, error) {
+func Do(path string, v interface{}, params *Params) (*Wrapper, error) {
 	return DefaultClient.Do(path, v, params)
 }
 
@@ -61,7 +83,7 @@ type Client struct {
 }
 
 // Do performs an API request.
-func (c *Client) Do(path string, v interface{}, params Params) (*Wrapper, error) {
+func (c *Client) Do(path string, v interface{}, params *Params) (*Wrapper, error) {
 	// Get arguments
 	client := http.DefaultClient
 	if c != nil && c.Client != nil {
@@ -73,24 +95,7 @@ func (c *Client) Do(path string, v interface{}, params Params) (*Wrapper, error)
 	}
 
 	// Build URL parameters
-	vals := url.Values{
-		"site": {params.Site},
-	}
-	if params.Sort != "" {
-		vals.Set("sort", params.Sort)
-	}
-	if params.Order != "" {
-		vals.Set("order", params.Order)
-	}
-	if params.Page != 0 {
-		vals.Set("page", strconv.Itoa(params.Page))
-	}
-	if params.PageSize != 0 {
-		vals.Set("pagesize", strconv.Itoa(params.PageSize))
-	}
-	if params.Filter != "" {
-		vals.Set("filter", params.Filter)
-	}
+	vals := params.values()
 	if c.AccessToken != "" {
 		vals.Set("access_token", c.AccessToken)
 	}
@@ -106,6 +111,10 @@ func (c *Client) Do(path string, v interface{}, params Params) (*Wrapper, error)
 	defer resp.Body.Close()
 
 	// Parse response
+	return parseResponse(resp.Body, v)
+}
+
+func parseResponse(r io.Reader, v interface{}) (*Wrapper, error) {
 	var result struct {
 		Items items `json:"items"`
 
@@ -125,7 +134,7 @@ func (c *Client) Do(path string, v interface{}, params Params) (*Wrapper, error)
 		Type  string `json:"type"`
 	}
 	result.Items = items{v}
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	err = json.NewDecoder(r).Decode(&result)
 	return &Wrapper{
 		Error: Error{
 			ID:      result.ErrorID,
