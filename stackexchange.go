@@ -23,8 +23,12 @@ const (
 
 // Sort orders
 const (
-	SortActivity = "activity"
-	SortScore    = "votes"
+	SortActivity     = "activity"
+	SortCreationDate = "creation"
+	SortHot          = "hot"
+	SortWeek         = "week"
+	SortMonth        = "month"
+	SortScore        = "votes"
 )
 
 type Params struct {
