@@ -169,17 +169,16 @@ type Wrapper struct {
 // Stack Exchange stores time values over the wire as int64 Unix epoch time.
 //
 // See: https://api.stackexchange.com/docs/dates
-type Time time.Time
+type Time int64
+
+func (t Time) Time() time.Time {
+	return time.Unix(int64(t), 0)
+}
 
 func (t Time) MarshalJSON() ([]byte, error) {
-	return json.Marshal(time.Time(t).Unix())
+	return json.Marshal(int64(t))
 }
 
 func (t *Time) UnmarshalJSON(data []byte) error {
-	var tt int64
-	if err := json.Unmarshal(data, &tt); err != nil {
-		return err
-	}
-	*t = Time(time.Unix(tt, 0))
-	return nil
+	return json.Unmarshal(data, (*int64)(t))
 }
