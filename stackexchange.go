@@ -33,6 +33,18 @@ const (
 	SortScore        = "votes"
 )
 
+// API paths
+const (
+	PathAllAnswers     = "/answers"
+	PathAnswers        = "/answers/{ids}"
+	PathAnswerComments = "/answers/{ids}/comments"
+
+	PathAllQuestions     = "/questions"
+	PathQuestions        = "/questions/{ids}"
+	PathQuestionAnswers  = "/questions/{ids}/answers"
+	PathQuestionComments = "/questions/{ids}/comments"
+)
+
 // Params is common set of arguments that can be sent to an API request.
 type Params struct {
 	Site string
