@@ -1,4 +1,6 @@
 // Package stackexchange provides access to the Stack Exchange 2.0 API.
+//
+// http://api.stackexchange.com/
 package stackexchange
 
 import (
@@ -48,6 +50,10 @@ func Do(path string, v interface{}, params Params) (*Wrapper, error) {
 type Client struct {
 	Client *http.Client
 	Root   string
+
+	// Pass these fields if you have an OAuth 2.0 application registered with stackapps.com.
+	AccessToken string
+	Key         string
 }
 
 // Do performs an API request.
@@ -67,19 +73,25 @@ func (c *Client) Do(path string, v interface{}, params Params) (*Wrapper, error)
 		"site": {params.Site},
 	}
 	if params.Sort != "" {
-		vals.Add("sort", params.Sort)
+		vals.Set("sort", params.Sort)
 	}
 	if params.Order != "" {
-		vals.Add("order", params.Order)
+		vals.Set("order", params.Order)
 	}
 	if params.Page != 0 {
-		vals.Add("page", strconv.Itoa(params.Page))
+		vals.Set("page", strconv.Itoa(params.Page))
 	}
 	if params.PageSize != 0 {
-		vals.Add("pagesize", strconv.Itoa(params.PageSize))
+		vals.Set("pagesize", strconv.Itoa(params.PageSize))
 	}
 	if params.Filter != "" {
-		vals.Add("filter", params.Filter)
+		vals.Set("filter", params.Filter)
+	}
+	if c.AccessToken != "" {
+		vals.Set("access_token", c.AccessToken)
+	}
+	if c.Key != "" {
+		vals.Set("key", c.Key)
 	}
 
 	// Send request
