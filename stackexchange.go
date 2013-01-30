@@ -5,6 +5,7 @@ package stackexchange
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -31,6 +32,7 @@ const (
 	SortScore        = "votes"
 )
 
+// Params is common set of arguments that can be sent to an API request.
 type Params struct {
 	Site string
 
@@ -134,7 +136,7 @@ func parseResponse(r io.Reader, v interface{}) (*Wrapper, error) {
 		Type  string `json:"type"`
 	}
 	result.Items = items{v}
-	err = json.NewDecoder(r).Decode(&result)
+	err := json.NewDecoder(r).Decode(&result)
 	return &Wrapper{
 		Error: Error{
 			ID:      result.ErrorID,
