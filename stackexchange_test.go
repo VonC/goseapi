@@ -1,6 +1,7 @@
 package stackexchange
 
 import (
+	"log"
 	"testing"
 )
 
@@ -52,4 +53,17 @@ func TestJoinIDs(t *testing.T) {
 			t.Errorf("JoinIDs(%v) = %q; want %q", test.IDs, out, test.String)
 		}
 	}
+}
+
+func ExampleDo() {
+	var questions []Question
+	wrapper, err := Do(PathQuestions, &questions, &Params{
+		Site: StackOverflow,
+		Args: []string{"11227809"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(wrapper)
+	log.Println(questions[0].Title)
 }
