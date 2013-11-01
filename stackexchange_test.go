@@ -35,6 +35,26 @@ func TestFillPlaceholders(t *testing.T) {
 	}
 }
 
+func TestJoinIDs(t *testing.T) {
+	tests := []struct {
+		IDs    []int
+		String string
+	}{
+		{nil, ""},
+		{[]int{}, ""},
+		{[]int{1}, "1"},
+		{[]int{40}, "40"},
+		{[]int{1, 40}, "1;40"},
+		{[]int{1, 40, 72}, "1;40;72"},
+		{[]int{1, 5, 2, 3}, "1;5;2;3"},
+	}
+	for _, test := range tests {
+		if out := JoinIDs(test.IDs); out != test.String {
+			t.Errorf("JoinIDs(%v) = %q; want %q", test.IDs, out, test.String)
+		}
+	}
+}
+
 func ExampleDo() {
 	var questions []Question
 	wrapper, err := Do(PathQuestions, &questions, &Params{
