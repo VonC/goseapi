@@ -120,10 +120,10 @@ func (c *Client) Do(path string, v interface{}, params *Params) (*Wrapper, error
 
 	// Build URL parameters
 	vals := params.values()
-	if c.AccessToken != "" {
+	if c != nil && c.AccessToken != "" {
 		vals.Set("access_token", c.AccessToken)
 	}
-	if c.Key != "" {
+	if c != nil && c.Key != "" {
 		vals.Set("key", c.Key)
 	}
 

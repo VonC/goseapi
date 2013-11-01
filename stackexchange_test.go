@@ -55,7 +55,7 @@ func TestJoinIDs(t *testing.T) {
 	}
 }
 
-func ExampleDo() {
+func TestExampleDo(t *testing.T) {
 	var questions []Question
 	wrapper, err := Do(PathQuestions, &questions, &Params{
 		Site: StackOverflow,
