@@ -120,10 +120,10 @@ func (c *Client) Do(path string, v interface{}, params *Params) (*Wrapper, error
 
 	// Build URL parameters
 	vals := params.values()
-	if c.AccessToken != "" {
+	if c != nil && c.AccessToken != "" {
 		vals.Set("access_token", c.AccessToken)
 	}
-	if c.Key != "" {
+	if c != nil && c.Key != "" {
 		vals.Set("key", c.Key)
 	}
 
@@ -161,19 +161,6 @@ func fillPlaceholders(s string, args []string) string {
 	}
 	if len(b) > 0 {
 		buf = append(buf, b...)
-	}
-	return string(buf)
-}
-
-// JoinIDs builds a string of semicolon-separated IDs.
-func JoinIDs(ids []int) string {
-	const bytesPerID = 9
-	buf := make([]byte, 0, bytesPerID*len(ids))
-	for _, id := range ids {
-		if len(buf) > 0 {
-			buf = append(buf, ';')
-		}
-		buf = strconv.AppendInt(buf, int64(id), 10)
 	}
 	return string(buf)
 }
