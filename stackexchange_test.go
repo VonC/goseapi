@@ -1,4 +1,4 @@
-package stackexchange
+package goseapi
 
 import (
 	"log"

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"bitbucket.org/zombiezen/stackexchange"
 	"fmt"
 	"log"
+
+	"github.com/VonC/goseapi"
 )
 
 func main() {
@@ -13,10 +14,10 @@ func main() {
 }
 
 func scrapeQuestions() error {
-	var questions []stackexchange.Question
-	_, err := stackexchange.Do("/questions", &questions, stackexchange.Params{
-		Site:     stackexchange.StackOverflow,
-		Sort:     stackexchange.SortScore,
+	var questions []goseapi.Question
+	_, err := goseapi.Do("/questions", &questions, goseapi.Params{
+		Site:     goseapi.StackOverflow,
+		Sort:     goseapi.SortScore,
 		Order:    "desc",
 		PageSize: 5,
 	})
@@ -37,11 +38,11 @@ func scrapeQuestions() error {
 	return nil
 }
 
-func fetchAnswers(id int) ([]stackexchange.Answer, error) {
-	var answers []stackexchange.Answer
-	_, err := stackexchange.Do(fmt.Sprintf("/questions/%d/answers", id), &answers, stackexchange.Params{
-		Site:     stackexchange.StackOverflow,
-		Sort:     stackexchange.SortScore,
+func fetchAnswers(id int) ([]goseapi.Answer, error) {
+	var answers []goseapi.Answer
+	_, err := goseapi.Do(fmt.Sprintf("/questions/%d/answers", id), &answers, goseapi.Params{
+		Site:     goseapi.StackOverflow,
+		Sort:     goseapi.SortScore,
 		Order:    "desc",
 		Filter:   "!-u2CTCBE",
 		PageSize: 1,
