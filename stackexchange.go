@@ -6,6 +6,7 @@ package goseapi
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -106,6 +107,8 @@ type Client struct {
 	Key         string
 }
 
+var Verbose bool
+
 // Do performs an API request.
 func (c *Client) Do(path string, v interface{}, params *Params) (*Wrapper, error) {
 	// Get arguments
@@ -127,8 +130,12 @@ func (c *Client) Do(path string, v interface{}, params *Params) (*Wrapper, error
 		vals.Set("key", c.Key)
 	}
 
+	req := root + fillPlaceholders(path, params.Args) + "?" + vals.Encode()
+	if Verbose {
+		fmt.Println(req)
+	}
 	// Send request
-	resp, err := client.Get(root + fillPlaceholders(path, params.Args) + "?" + vals.Encode())
+	resp, err := client.Get(req)
 	if err != nil {
 		return nil, err
 	}
